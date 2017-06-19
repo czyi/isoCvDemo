@@ -12,6 +12,8 @@
 enum CVDemoType {
     CVDemoTypeDefault,
     CVDemoTypeIncremental,
+    CVDemoTypeCombineOne,
+    CVDemoTypeCombineTwo,
 };
 
 @interface ViewController : UIViewController

@@ -43,6 +43,14 @@
                       @"type": @(CVDemoTypeIncremental),
                       @"title": @"Demo with Incremental Method"
                       },
+                  @{
+                      @"type": @(CVDemoTypeCombineOne),
+                      @"title": @"Combined Demo One"
+                      },
+                  @{
+                      @"type": @(CVDemoTypeCombineTwo),
+                      @"title": @"Combined Demo Two"
+                      },
                   ];
     // Do any additional setup after loading the view.
 }

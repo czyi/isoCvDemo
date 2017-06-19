@@ -36,16 +36,25 @@ class cvUtil{
     vector<KeyPoint> keyImg0, keyImg1; //key point of img
     Mat descImg0, descImg1; //descriptor of img
     
-    Mat preHomo;
+    Mat homo0, preHomo0, preHomo;
     vector<Point2d> iniPts, prePts, curPts;
+    
+    int left, right, top, buttom;
+    int width, height;
+    
+    vector<Mat> homolist;
+    int listpt;
     
 public:
     cvUtil();
     ~cvUtil();
-    bool setInitialPts(int left, int right, int top, int buttom);
+    bool setInitialPts(int left, int right, int top, int buttom, int w, int h);
     bool initialImageFeature(Mat img1);
     Mat homoMatrixToInitial(Mat img2, CvPoint upLeft, CvPoint lowRight);
     Mat homoMatrixToPrevious(Mat img2);
+    Mat homoMatrixCombine(Mat img2, int flag);
+    double homoDiffSum(Mat homo1, Mat homo2);
+    bool reset();
 };
 
 
