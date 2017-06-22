@@ -32,8 +32,6 @@
         make.edges.equalTo(self.view);
     }];
     
-
-    
     tableData = @[
                   @{
                       @"type": @(CVDemoTypeDefault),
@@ -50,6 +48,18 @@
                   @{
                       @"type": @(CVDemoTypeCombineTwo),
                       @"title": @"Combined Demo Two"
+                      },
+                  @{
+                      @"type": @(CVDemoTypeGrabcut),
+                      @"title": @"Grabcut Demo"
+                      },
+                  @{
+                      @"type": @(CVDemoTypeFilterOne),
+                      @"title": @"Filter Demo One"
+                      },
+                  @{
+                      @"type": @(CVDemoTypeOpticalFlow),
+                      @"title": @"Optical Flow Demo"
                       },
                   ];
     // Do any additional setup after loading the view.

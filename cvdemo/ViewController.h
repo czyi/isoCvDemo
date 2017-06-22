@@ -14,6 +14,9 @@ enum CVDemoType {
     CVDemoTypeIncremental,
     CVDemoTypeCombineOne,
     CVDemoTypeCombineTwo,
+    CVDemoTypeGrabcut,
+    CVDemoTypeFilterOne,
+    CVDemoTypeOpticalFlow,
 };
 
 @interface ViewController : UIViewController

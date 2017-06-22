@@ -24,6 +24,8 @@
 #import <opencv2/highgui/highgui_c.h>
 #include <opencv2/videoio/cap_ios.h>
 
+#include "opencv2/imgcodecs.hpp"
+#include "opencv2/imgproc.hpp"
 
 using namespace cv;
 using namespace std;
@@ -31,6 +33,9 @@ using namespace std;
 class cvUtil{
     Mat img0; //initial image
     Mat img1; //previous / first image
+    vector<Mat> initialImgBuf;
+    double blurThreshold, blurScale;
+    int countBlurSkip, countFromInitial, CountFromPrevious;
     
     Ptr<Feature2D> b;
     vector<KeyPoint> keyImg0, keyImg1; //key point of img
@@ -39,21 +44,26 @@ class cvUtil{
     Mat homo0, preHomo0, preHomo;
     vector<Point2d> iniPts, prePts, curPts;
     
+    int sepLeft, sepRight, sepTop, sepButtom;
     int left, right, top, buttom;
     int width, height;
     
-    vector<Mat> homolist;
+    Mat nullHomo;
+    vector<Mat> homoList;
     int listpt;
+    int featurePointNum = 80;
     
 public:
     cvUtil();
     ~cvUtil();
     bool setInitialPts(int left, int right, int top, int buttom, int w, int h);
     bool initialImageFeature(Mat img1);
-    Mat homoMatrixToInitial(Mat img2, CvPoint upLeft, CvPoint lowRight);
+    Mat homoMatrixToInitial(Mat img2);
     Mat homoMatrixToPrevious(Mat img2);
     Mat homoMatrixCombine(Mat img2, int flag);
+    Mat filterHomo(Mat img2);
     double homoDiffSum(Mat homo1, Mat homo2);
+    Mat grabCut(Mat img);
     bool reset();
 };
 

@@ -22,6 +22,7 @@
 		D519286A1EEA6AC600D156DE /* cvUtiil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D51928681EEA6AC600D156DE /* cvUtiil.cpp */; };
 		D519286D1EF103A000D156DE /* MainMenuViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D519286C1EF103A000D156DE /* MainMenuViewController.m */; };
 		D57C6B911ED361C70087E83F /* lena.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D57C6B901ED361C70087E83F /* lena.jpg */; };
+		D5ABD52F1EFB3A8B0018A49A /* cvOpticalFlow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D5ABD52D1EFB3A8B0018A49A /* cvOpticalFlow.cpp */; };
 		D5EB2AE41ED6A87900CD5966 /* initialSmall01.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D5EB2AE31ED6A87900CD5966 /* initialSmall01.jpg */; };
 		D5EB2AE61ED6A8A000CD5966 /* shoes01Small01.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D5EB2AE51ED6A8A000CD5966 /* shoes01Small01.jpg */; };
 		D5EB2AEA1ED76FC800CD5966 /* shoes02Small01.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D5EB2AE71ED76FC800CD5966 /* shoes02Small01.jpg */; };
@@ -77,6 +78,8 @@
 		D519286B1EF103A000D156DE /* MainMenuViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainMenuViewController.h; sourceTree = "<group>"; };
 		D519286C1EF103A000D156DE /* MainMenuViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainMenuViewController.m; sourceTree = "<group>"; };
 		D57C6B901ED361C70087E83F /* lena.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = lena.jpg; path = ../pctest/image/lena.jpg; sourceTree = "<group>"; };
+		D5ABD52D1EFB3A8B0018A49A /* cvOpticalFlow.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = cvOpticalFlow.cpp; sourceTree = "<group>"; };
+		D5ABD52E1EFB3A8B0018A49A /* cvOpticalFlow.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = cvOpticalFlow.hpp; sourceTree = "<group>"; };
 		D5EB2AE31ED6A87900CD5966 /* initialSmall01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = initialSmall01.jpg; path = ../pctest/image/initialSmall01.jpg; sourceTree = "<group>"; };
 		D5EB2AE51ED6A8A000CD5966 /* shoes01Small01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = shoes01Small01.jpg; path = ../pctest/image/shoes01Small01.jpg; sourceTree = "<group>"; };
 		D5EB2AE71ED76FC800CD5966 /* shoes02Small01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = shoes02Small01.jpg; path = ../pctest/image/shoes02Small01.jpg; sourceTree = "<group>"; };
@@ -181,6 +184,8 @@
 				D51893081EBE782400D38701 /* SecondViewController.m */,
 				D51928681EEA6AC600D156DE /* cvUtiil.cpp */,
 				D51928691EEA6AC600D156DE /* cvUtiil.hpp */,
+				D5ABD52D1EFB3A8B0018A49A /* cvOpticalFlow.cpp */,
+				D5ABD52E1EFB3A8B0018A49A /* cvOpticalFlow.hpp */,
 				D519286B1EF103A000D156DE /* MainMenuViewController.h */,
 				D519286C1EF103A000D156DE /* MainMenuViewController.m */,
 			);
@@ -503,6 +508,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D51893091EBE782400D38701 /* SecondViewController.m in Sources */,
+				D5ABD52F1EFB3A8B0018A49A /* cvOpticalFlow.cpp in Sources */,
 				D51892DC1EBDA26300D38701 /* ViewController.mm in Sources */,
 				D519286A1EEA6AC600D156DE /* cvUtiil.cpp in Sources */,
 				D51892D91EBDA26300D38701 /* AppDelegate.m in Sources */,
