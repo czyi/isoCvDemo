@@ -82,15 +82,15 @@
     videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPreset640x480;
     //videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPreset1280x720;
     
-    videoCamera.defaultAVCaptureVideoOrientation = AVCaptureVideoOrientationPortrait;
-    
-    
+    //videoCamera.defaultAVCaptureVideoOrientation = AVCaptureVideoOrientationPortrait;
+
     
     videoCamera.defaultFPS = 30;
     videoCamera.grayscaleMode = NO;
     
     state=0;
-//    calMatrix=new cvUtil();
+    calMatrix=new cvUtil();
+    opticalFlow=new cvOpticalFlow();
 }
 
 -(void)viewDidAppear:(BOOL)animated{
@@ -104,8 +104,8 @@
 {
     //[videoCamera start];
     state=1;
-    calMatrix=new cvUtil();
-    opticalFlow=new cvOpticalFlow();
+//    calMatrix=new cvUtil();
+//    opticalFlow=new cvOpticalFlow();
 }
 
 - (void)resetButtonPressed:(id)sender
@@ -153,11 +153,34 @@
         }
     }
     else if(self.demoType==CVDemoTypeOpticalFlow){
+//        if(state==0){
+//            rectangle(image, cvPoint(left, top), cvPoint(right, buttom), cvScalar(1), 3);
+//        }
+//        else if(state==1){
+//            Mat homo=opticalFlow->trackingAndSeperateAndMatrix(image);
+//            
+//            if(homo.rows<3 || homo.cols<3 || homo.at<double>(2,2)<0) return;
+//            
+//            vector<Point2d> rectPts(4), transPts(4);
+//            rectPts[0]=cvPoint(left+50, top+30);
+//            rectPts[1]=cvPoint(left+50, buttom-30);
+//            rectPts[2]=cvPoint(right-50, buttom-30);
+//            rectPts[3]=cvPoint(right-50, top+30);
+//            
+//            cv::Point points[1][4];
+//            perspectiveTransform(rectPts, transPts, homo);
+//            for(int i=0; i<4; i++)
+//            {
+//                points[0][i]=transPts[i];
+//            }
+//            
+//            const cv::Point* pt[1] = { points[0] };
+//            int npt[1] = {4};
+//            polylines(image, pt, npt, 1, 1, Scalar(1),3);
+//        }
+        
         if(state==1){
-            clock_t startTime=clock();
-            image=opticalFlow->tracking(image);
-            clock_t endTime=clock();
-            cout << "one frame time is : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+            opticalFlow->trackingAndSeperate(image);
         }
     }
     else{
@@ -206,7 +229,7 @@
                 homo=calMatrix->filterHomo(image);
             }
             
-            if(homo.at<double>(2,2)<0) return;
+            if(homo.cols<3 || homo.rows<3 || homo.at<double>(2,2)<0) return;
             
             vector<Point2d> rectPts(4), transPts(4);
             rectPts[0]=cvPoint(left+50, top+30);

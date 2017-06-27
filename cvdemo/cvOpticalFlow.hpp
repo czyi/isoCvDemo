@@ -41,7 +41,7 @@ class cvOpticalFlow{
     string window_name = "optical flow tracking";
     Mat curGray, preGray;
 
-    vector<Point2f> prePts, curPts;
+    vector<Point2f> preOptPts, curOptPts;
     vector<Point2f> initial;
     vector<Point2f> features; // 检测的特征
     int maxCount = 500; // 检测的最大特征数
@@ -50,11 +50,19 @@ class cvOpticalFlow{
     vector<uchar> status; // 跟踪特征的状态，特征的流发现为1，否则为0
     vector<float> err;
     
+    Mat preHomo;
+    int left, right, top, buttom;
+    int width, height;
+    
 public:
     cvOpticalFlow();
     ~cvOpticalFlow();
     
     Mat tracking(Mat curframe);
+    Mat trackingAndSeperate(Mat curframe);
+    Mat trackingAndSeperateAndMatrix(Mat curframe);
+    bool setInitialPts(int l, int r, int t, int b, int w, int h);
+    bool initialFeaturePoint(Mat curframe);
     bool addNewPoints();
     bool acceptTrackedPoint(int i);
 };

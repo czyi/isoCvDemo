@@ -46,11 +46,7 @@ cvUtil::cvUtil(){
     homoList.reserve(10);
     listpt = 0;
     
-    nullHomo = Mat(3,3, CV_64F);
-    nullHomo.at<double>(2,2)=-10;
-    
-    preHomo0 = Mat(3,3, CV_64F);
-    preHomo0.at<double>(2,2)=-10;
+    preHomo0 = Mat();
     
     blurScale=5;
     countFromInitial=0;
@@ -129,7 +125,77 @@ bool cvUtil::initialImageFeature(Mat image){
     endTime = clock();
     cout << "first image feature detect time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
     
+    cout << img0.type() << endl;
+    cout << img0.at<Vec4b>(0, 0) << endl;
+    
     return true;
+}
+
+double cvUtil::imageDiff(Mat img1, Mat img2){
+    double diffsum=0;
+    clock_t startTime, endTime;
+    startTime=clock();
+    //cout << img1.rows << ", " << img1.cols << endl;
+    for(int i=0; i<img1.rows; i++){
+        for(int j=0; j<img1.cols;j++){
+            for(int k=0; k<4; k++){
+//                cout << img1.at<Vec4b>(0, 0) << endl;
+//                cout << img2.at<Vec4b>(0, 0) << endl;
+                diffsum += abs(img1.at<Vec4b>(i, j)[k] - img2.at<Vec4b>(i, j)[k])/255.0;
+            }
+        }
+    }
+    endTime=clock();
+    cout << "image diff detect time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+    
+    return diffsum;
+}
+
+bool cvUtil::addNewPoints(){
+    return preOptPts.size() <= 30;
+}
+
+bool cvUtil::acceptTrackedPoint(int i){
+    return status[i] && ((abs(preOptPts[i].x - curOptPts[i].x) + abs(preOptPts[i].y - curOptPts[i].y)) > 2);
+}
+
+int cvUtil::tracking(Mat curframe){
+    if(curframe.rows*curframe.cols <=0 ){
+        cout << "no frame" << endl;
+        return 0;
+    }
+    cvtColor(curframe, curGray, COLOR_BGR2GRAY);
+    
+    Mat output;
+    curframe.copyTo(output);
+    
+    // 添加特征点
+    if (addNewPoints())
+    {
+        goodFeaturesToTrack(curGray, features, maxCount, qLevel, minDist);
+        preOptPts.insert(preOptPts.end(), features.begin(), features.end());
+        initial.insert(initial.end(), features.begin(), features.end());
+    }
+    
+    if (preGray.empty()) curGray.copyTo(preGray);
+    
+    calcOpticalFlowPyrLK(preGray, curGray, preOptPts, curOptPts, status, err);
+    int k = 0;
+    for (int i=0; i<curOptPts.size(); i++)
+    {
+        if (acceptTrackedPoint(i)){
+            initial[k] = initial[i];
+            curOptPts[k++] = curOptPts[i];
+        }
+    }
+    curOptPts.resize(k);
+    initial.resize(k);
+    
+    // 把当前跟踪结果作为下一此参考
+    swap(curOptPts, preOptPts);
+    swap(curGray, preGray);
+    
+    return k;
 }
 
 cv::Mat cvUtil::homoMatrixToInitial(Mat img2){
@@ -141,8 +207,6 @@ cv::Mat cvUtil::homoMatrixToInitial(Mat img2){
     if(img0.rows*img0.cols<=0 || img2.rows*img2.cols<=0)
     {
         cout << "no img0 or img2" << endl;
-//        if(preHomo0.at<double>(2,2)>0) return preHomo0;
-//        else return nullHomo;
         return preHomo0;
     }
     
@@ -150,6 +214,8 @@ cv::Mat cvUtil::homoMatrixToInitial(Mat img2){
         countBlurSkip++;
         return preHomo0;
     }
+    
+    //small movement
     
     Ptr<DescriptorMatcher> descriptorMatcher;
     vector<DMatch> matches;
@@ -219,7 +285,7 @@ cv::Mat cvUtil::homoMatrixToPrevious(Mat img2){
         if(img0.rows*img0.cols<=0)
         {
             cout << "no img1" << endl;
-            return nullHomo;
+            return Mat();
         }
         else{
             img1=img0.clone();
@@ -231,9 +297,9 @@ cv::Mat cvUtil::homoMatrixToPrevious(Mat img2){
     if(img2.rows*img2.cols<=0)
     {
         cout << "no img2" << endl;
-        return nullHomo;
+        return preHomo;
     }
-    
+
     if(contrast_measure(img2)>blurThreshold){
         countBlurSkip++;
         return preHomo;
@@ -282,8 +348,7 @@ cv::Mat cvUtil::homoMatrixToPrevious(Mat img2){
         if(bestMatches.size()>=featurePointNum) break;
     }
     
-    Mat homo=Mat(3,3, CV_64F);
-    homo.at<double>(2,2)=-10;
+    Mat homo=Mat();
     try{
         homo=findHomography(imagePoints1,imagePoints2,CV_RANSAC);
     }
@@ -325,10 +390,14 @@ Mat cvUtil::homoMatrixCombine(Mat img2, int flag){
     double diff1and2=homoDiffSum(homo1, homo2);
     double diff1=homoDiffSum(homo1, preHomo0);
     double diff2=homoDiffSum(homo2, preHomo);
-    cout << "diff1and2 is " << diff1and2 << endl;
-    cout << "diff1 is " << diff1 << endl;
-    cout << "diff2 is " << diff2 << endl;
- 
+//    cout << "diff1and2 is " << diff1and2 << endl;
+//    cout << "diff1 is " << diff1 << endl;
+//    cout << "diff2 is " << diff2 << endl;
+    
+    cout << "===============" << endl;
+    cout << "feature num is " << tracking(img2) << endl;
+    //if(preHomo2.rows==3 && preHomo2.cols==3 && tracking(img2)<5) return preHomo2;
+    
     Mat homo;
     
     if(flag==1){
@@ -353,7 +422,7 @@ Mat cvUtil::homoMatrixCombine(Mat img2, int flag){
             preHomo=homo1.clone();
             homo = homo1.clone();
         }
-        else if(homo1.at<double>(2,2)<0 || diff2<diff2){
+        else if(homo1.at<double>(2,2)<0 || diff2<diff1){
             //homo = (homo1 + homo2)/2;
             CountFromPrevious++;
             homo=homo2.clone();
@@ -381,6 +450,7 @@ Mat cvUtil::homoMatrixCombine(Mat img2, int flag){
     }
     
     cout << "from initial num is " << countFromInitial << ", from previous num is " << CountFromPrevious << endl;
+    preHomo2=homo;
     return homo;
 }
 
@@ -414,52 +484,6 @@ Mat cvUtil::filterHomo(Mat img2){
     listpt++;
     
     return (0.2*sumhomo+0.8*curHomo);
-    
-    
-    
-    
-//    Mat curHomo=homoMatrixCombine(img2, 1);
-//    Mat sumhomo=Mat(3,3,CV_64F);
-//    for(int i=0;i<3;i++){
-//        for(int j=0;j<3;j++){
-//            sumhomo.at<double>(i,j)=0;
-//        }
-//    }
-//    cout << "initial sumhomo is " << "\n" << sumhomo << endl;
-//    
-//    if(homoList.size()<10){
-//        homoList.push_back(curHomo);
-//        listpt++;
-//    }
-//    else{
-//        if(listpt>=10) listpt %= 10;
-//        homoList[listpt]=curHomo;
-//    }
-//    
-//    
-//    for(int i=0; i<homoList.size();i++){
-//        sumhomo += homoList[i];
-//    }
-//    
-//    return sumhomo/homoList.size();
-//    
-//    vector<Point2d> rectPts(4), transPts(4), sumPts(4);
-//    rectPts[0]=cvPoint(left+50, top+30);
-//    rectPts[1]=cvPoint(left+50, buttom-30);
-//    rectPts[2]=cvPoint(right-50, buttom-30);
-//    rectPts[3]=cvPoint(right-50, top+30);
-//    
-//    cv::Point points[1][4];
-//    perspectiveTransform(rectPts, transPts, homo);
-//    for(int i=0; i<4; i++)
-//    {
-//        points[0][i]=transPts[i];
-//    }
-//    
-//    const cv::Point* pt[1] = { points[0] };
-//    int npt[1] = {4};
-//    polylines(image, pt, npt, 1, 1, Scalar(1),3);
-    
 }
 
 double cvUtil::homoDiffSum(Mat homo1, Mat homo2){

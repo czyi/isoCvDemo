@@ -41,7 +41,7 @@ class cvUtil{
     vector<KeyPoint> keyImg0, keyImg1; //key point of img
     Mat descImg0, descImg1; //descriptor of img
     
-    Mat homo0, preHomo0, preHomo;
+    Mat homo0, preHomo0, preHomo, preHomo2;
     vector<Point2d> iniPts, prePts, curPts;
     
     int sepLeft, sepRight, sepTop, sepButtom;
@@ -51,7 +51,18 @@ class cvUtil{
     Mat nullHomo;
     vector<Mat> homoList;
     int listpt;
-    int featurePointNum = 80;
+    int featurePointNum = 30;
+    
+    
+    Mat curGray, preGray;
+    vector<Point2f> preOptPts, curOptPts;
+    vector<Point2f> initial;
+    vector<Point2f> features; // 检测的特征
+    int maxCount = 500; // 检测的最大特征数
+    double qLevel = 0.01; // 特征检测的等级
+    double minDist = 10.0; // 两特征点之间的最小距离
+    vector<uchar> status; // 跟踪特征的状态，特征的流发现为1，否则为0
+    vector<float> err;
     
 public:
     cvUtil();
@@ -63,6 +74,10 @@ public:
     Mat homoMatrixCombine(Mat img2, int flag);
     Mat filterHomo(Mat img2);
     double homoDiffSum(Mat homo1, Mat homo2);
+    double imageDiff(Mat img1, Mat img2);
+    int tracking(Mat curframe);
+    bool addNewPoints();
+    bool acceptTrackedPoint(int i);
     Mat grabCut(Mat img);
     bool reset();
 };
