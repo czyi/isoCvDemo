@@ -191,11 +191,20 @@ int cvUtil::tracking(Mat curframe){
     curOptPts.resize(k);
     initial.resize(k);
     
+    // 显示特征点和运动轨迹
+    int moveNum=0;
+    for (size_t i=0; i<curOptPts.size(); i++){
+        //line(curframe, initial[i], curOptPts[i], Scalar(0, 0, 255));
+        if(abs(initial[i].x-curOptPts[i].x)+abs(initial[i].y-curOptPts[i].y)>5){
+            moveNum++;
+        }
+    }
+    
     // 把当前跟踪结果作为下一此参考
     swap(curOptPts, preOptPts);
     swap(curGray, preGray);
     
-    return k;
+    return moveNum;
 }
 
 cv::Mat cvUtil::homoMatrixToInitial(Mat img2){
@@ -216,6 +225,12 @@ cv::Mat cvUtil::homoMatrixToInitial(Mat img2){
     }
     
     //small movement
+    int numm=tracking(img2);
+    cout << "move num is " << numm << endl;
+    if(preHomo0.cols==3 && numm<5){
+        cout << "============" << endl;
+        return preHomo0;
+    }
     
     Ptr<DescriptorMatcher> descriptorMatcher;
     vector<DMatch> matches;
@@ -259,14 +274,14 @@ cv::Mat cvUtil::homoMatrixToInitial(Mat img2){
         if(bestMatches.size()>=featurePointNum) break;
     }
     
-    Mat tempHomo=homo0.clone();
+    Mat tempHomo=homo0;
     try{
         homo0=findHomography(imagePoints0,imagePoints2,CV_RANSAC);
     }
     catch(Exception& e){
         return preHomo0;
     }
-    preHomo0=tempHomo.clone();
+    preHomo0=tempHomo;
     
     cout<<"Transform Matrix：\n"<<homo0<<endl<<endl;
     endTime = clock();
@@ -380,6 +395,9 @@ cv::Mat cvUtil::homoMatrixToPrevious(Mat img2){
 }
 
 Mat cvUtil::homoMatrixCombine(Mat img2, int flag){
+    cout << "===============" << endl;
+    cout << "feature num is " << tracking(img2) << endl;
+    
     Mat homo1=homoMatrixToInitial(img2);
     Mat homo2=homoMatrixToPrevious(img2);
     
@@ -393,9 +411,7 @@ Mat cvUtil::homoMatrixCombine(Mat img2, int flag){
 //    cout << "diff1and2 is " << diff1and2 << endl;
 //    cout << "diff1 is " << diff1 << endl;
 //    cout << "diff2 is " << diff2 << endl;
-    
-    cout << "===============" << endl;
-    cout << "feature num is " << tracking(img2) << endl;
+
     //if(preHomo2.rows==3 && preHomo2.cols==3 && tracking(img2)<5) return preHomo2;
     
     Mat homo;
@@ -414,15 +430,15 @@ Mat cvUtil::homoMatrixCombine(Mat img2, int flag){
 //            CountFromPrevious++;
 //            homo=homo2.clone();
 //        }
-        if(homo1.at<double>(2,2)<0 && homo2.at<double>(2,2)<0){
+        if(homo1.cols<2 && homo2.cols<0){
             return preHomo0;
         }
-        if(homo2.at<double>(2,2)<0){
+        if(homo2.cols<2){
             countFromInitial++;
             preHomo=homo1.clone();
             homo = homo1.clone();
         }
-        else if(homo1.at<double>(2,2)<0 || diff2<diff1){
+        else if(homo1.cols<2 || diff2<diff1){
             //homo = (homo1 + homo2)/2;
             CountFromPrevious++;
             homo=homo2.clone();
@@ -434,10 +450,10 @@ Mat cvUtil::homoMatrixCombine(Mat img2, int flag){
         }
     }
     else if(flag==2){
-        if(homo1.at<double>(2,2)<0 && homo2.at<double>(2,2)<0){
+        if(homo1.cols<2 && homo2.cols<2){
             return preHomo0;
         }
-        else if(homo2.at<double>(2,2)<0 || diff1and2<1.5){
+        else if(homo2.cols<2 || diff1and2<1.5){
             countFromInitial++;
             preHomo=homo1.clone();
             homo = homo1.clone();
@@ -470,7 +486,7 @@ Mat cvUtil::filterHomo(Mat img2){
     
     Mat avgHomo = sumhomo/homoList.size();
     if(homoDiffSum(avgHomo, curHomo)>1){
-        return nullHomo;
+        return Mat();
     }
     
     if(homoList.size()<10){

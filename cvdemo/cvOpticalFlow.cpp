@@ -191,10 +191,16 @@ Mat cvOpticalFlow::trackingAndSeperate(Mat curframe){
         Mat homoMatrix=findHomography(remainPts,curOptPts,CV_RANSAC);
         perspectiveTransform(remainPts, expPts, homoMatrix);
         
+        //no threshold, grouping
         double threshold=0;
+        cout << "move is " << endl;
         for(size_t i=0; i<curOptPts.size(); i++){
-            threshold+=abs(expPts[i].x-curOptPts[i].x)+abs(expPts[i].y-curOptPts[i].y);
+            //threshold+=abs(expPts[i].x-curOptPts[i].x)+abs(expPts[i].y-curOptPts[i].y);
+            double move=abs(expPts[i].x-curOptPts[i].x)+abs(expPts[i].y-curOptPts[i].y);
+            //double move=abs(initial[i].x-curOptPts[i].x)+abs(initial[i].y-curOptPts[i].y);
+            cout << move << ", ";
         }
+        cout << endl;
         threshold/=k;
         
         //cout << curOptPts.size() << ", " << k << endl;
@@ -203,11 +209,11 @@ Mat cvOpticalFlow::trackingAndSeperate(Mat curframe){
         // 显示特征点和运动轨迹
         for (size_t i=0; i<curOptPts.size(); i++){
             line(curframe, initial[i], curOptPts[i], Scalar(0, 0, 255));
-            //circle(curframe, curOptPts[i], 3, Scalar(0, 255, 0), -1);
+            circle(curframe, curOptPts[i], 3, Scalar(0, 255, 0), -1);
             
-            if(abs(expPts[i].x-curOptPts[i].x)+abs(expPts[i].y-curOptPts[i].y)>threshold*2){
-                circle(curframe, curOptPts[i], 3, Scalar(0, 255, 0), -1);
-            }
+//            if(abs(expPts[i].x-curOptPts[i].x)+abs(expPts[i].y-curOptPts[i].y)>threshold*2){
+//                circle(curframe, curOptPts[i], 3, Scalar(0, 255, 0), -1);
+//            }
         }
     }
     
@@ -270,14 +276,14 @@ Mat cvOpticalFlow::trackingAndSeperateAndMatrix(Mat curframe){
         threshold/=k;
         
         //cout << curOptPts.size() << ", " << k << endl;
-        cout << "thershold is " << threshold*2 << endl;
+        //cout << "thershold is " << threshold*2 << endl;
         
         // 显示特征点和运动轨迹
         for (size_t i=0; i<curOptPts.size(); i++){
             line(curframe, initial[i], curOptPts[i], Scalar(0, 0, 255));
             //circle(curframe, curOptPts[i], 3, Scalar(0, 255, 0), -1);
             
-            if(abs(expPts[i].x-curOptPts[i].x)+abs(expPts[i].y-curOptPts[i].y)>threshold*2){
+            if(abs(expPts[i].x-curOptPts[i].x)+abs(expPts[i].y-curOptPts[i].y)>threshold*3){
                 circle(curframe, curOptPts[i], 3, Scalar(0, 255, 0), -1);
                 preFrontPts.push_back(initial[i]);
                 curFrontPts.push_back(curOptPts[i]);

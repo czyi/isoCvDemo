@@ -48,7 +48,6 @@ class cvUtil{
     int left, right, top, buttom;
     int width, height;
     
-    Mat nullHomo;
     vector<Mat> homoList;
     int listpt;
     int featurePointNum = 30;

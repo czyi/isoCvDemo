@@ -81,10 +81,7 @@
     //videoCamera.defaultAVCaptureDevicePosition = AVCaptureDevicePositionFront;
     videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPreset640x480;
     //videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPreset1280x720;
-    
     //videoCamera.defaultAVCaptureVideoOrientation = AVCaptureVideoOrientationPortrait;
-
-    
     videoCamera.defaultFPS = 30;
     videoCamera.grayscaleMode = NO;
     
@@ -106,6 +103,64 @@
     state=1;
 //    calMatrix=new cvUtil();
 //    opticalFlow=new cvOpticalFlow();
+    
+    AVCaptureDevice *device= [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    
+    //固定iso
+    @try {
+        [device lockForConfiguration:nil];
+        [device setExposureModeCustomWithDuration:device.exposureDuration ISO:device.ISO completionHandler:^(CMTime syncTime){
+            AVCaptureDevice* device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+            //        [self.mExposureBias setValue:device.exposureTargetOffset];
+            NSLog(@"exposureTargetOffset:%f",device.exposureTargetOffset);
+            //        手动模式
+            AVCaptureDeviceFormat *activeFormat = device.activeFormat;
+            CMTime minDuration = activeFormat.minExposureDuration;
+            int durVal = 30;
+            float clampedISO = 665;
+            CMTime clampedDuration = CMTimeMake(durVal, minDuration.timescale);
+            [device setExposureModeCustomWithDuration:clampedDuration ISO:clampedISO completionHandler:nil];
+            device.exposureMode=AVCaptureExposureModeCustom;
+            [device unlockForConfiguration];
+        }];
+    }@catch (NSException *exception) {
+    }
+
+    //固定曝光时长
+    CMTime duration = CMTimeMakeWithSeconds(device.exposureDuration.value, 1000000);
+    @try {
+        [device lockForConfiguration:nil];
+        [device setExposureModeCustomWithDuration:duration ISO:device.ISO completionHandler:^(CMTime syncTime)
+         {
+             AVCaptureDevice* device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+             // 此只读属性的值表示当前场景的计量曝光水平与目标曝光值之间的差异。
+             //        [self.mExposureBias setValue:device.exposureTargetOffset];
+             
+             //手动模式
+             AVCaptureDeviceFormat *activeFormat = device.activeFormat;
+             CMTime minDuration = activeFormat.minExposureDuration;
+             int durVal = 30;
+             float clampedISO = 665;
+             CMTime clampedDuration = CMTimeMake(durVal, minDuration.timescale);
+             [device setExposureModeCustomWithDuration:clampedDuration ISO:clampedISO completionHandler:nil];
+             device.exposureMode=AVCaptureExposureModeCustom;
+             
+             NSLog(@",%f",device.exposureTargetOffset);
+             [device unlockForConfiguration];
+         }];
+    } @catch (NSException *exception) {
+        
+    }
+    
+//    //固定曝光补偿
+//    @try {
+//        [device lockForConfiguration:nil];
+//        [device setExposureMode:AVCaptureExposureModeAutoExpose];
+//        [device setExposureTargetBias:device.exposureTargetBias completionHandler:nil];
+//        
+//        [device unlockForConfiguration];
+//    } @catch (NSException *exception) {
+//    }
 }
 
 - (void)resetButtonPressed:(id)sender
@@ -114,6 +169,16 @@
     state=0;
     calMatrix=new cvUtil();
     opticalFlow=new cvOpticalFlow();
+    
+    AVCaptureDevice *device= [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    @try {
+        [device lockForConfiguration:nil];
+    
+        [device setExposureMode:AVCaptureExposureModeAutoExpose];
+        
+        [device unlockForConfiguration];
+    } @catch (NSException *exception) {
+    }
 }
 
 - (void)processImage:(cv::Mat &)image
