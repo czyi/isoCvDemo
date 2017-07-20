@@ -19,8 +19,9 @@
 ### Tracking Interface
 ![](https://github.com/czyi/isoCvDemo/blob/master/file/TrackingInterface.PNG)
 - ViewController.mm
+- Image resolution is 640x480
 - The brightness of image is fixed.
-- Clicking `reset` buttom can adjust image to current light.
+  - Clicking `reset` buttom can adjust image to current light.
 
 ### Initialization
 - Put shoes into the retangle and click `start` button to start tracking.
@@ -30,6 +31,8 @@
 - cvOpticalFlow.cpp
 - function trackingFrontFromInitialNineGrid
 - `avgHomo` is the homography matrix of shoes plane in two frame (initial frame and current frame)
+- camera matrix is required to recover pose in function `pose_estimation_2d2d`
+  - current camera matrix K is for 640x480 image by iphone 7 
 - `R` and `t` is the rotation matrix and transformation vector of camera pose
 - Pose Matrix is saved in `pose` and printed
 
